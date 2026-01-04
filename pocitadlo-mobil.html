@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Počítadlo Událostí</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+/* Reset a základní styly */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #4f46e5;
+    --primary-hover: #4338ca;
+    --secondary-color: #10b981;
+    --danger-color: #ef4444;
+    --danger-hover: #dc2626;
+    --bg-color: #f9fafb;
+    --card-bg: #ffffff;
+    --text-color: #1f2937;
+    --text-light: #6b7280;
+    --border-color: #e5e7eb;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 12px;
+    color: white;
+    box-shadow: var(--shadow-lg);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+/* Sections */
+section {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+}
+
+section h2 {
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+/* Formulář pro přidání události */
+.event-form {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+#eventName {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+#eventName:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Tlačítka */
+button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #059669;
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: var(--danger-hover);
+}
+
+/* Rychlá tlačítka */
+.quick-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.quick-btn {
+    padding: 8px 16px;
+    background-color: #f3f4f6;
+    color: var(--text-color);
+    border: 2px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.quick-btn:hover {
+    background-color: #e5e7eb;
+    border-color: var(--primary-color);
+}
+
+/* Statistiky */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    color: white;
+    box-shadow: var(--shadow);
+}
+
+.stat-card:nth-child(2) {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stat-card:nth-child(3) {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+/* Grafy */
+.chart-controls {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.chart-controls label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.chart-controls select {
+    padding: 8px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: white;
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin-top: 20px;
+}
+
+/* Seznam událostí */
+.list-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+#searchEvents {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+#filterEvents {
+    padding: 10px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: white;
+}
+
+.events-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.event-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background-color: #fafafa;
+    transition: all 0.2s;
+}
+
+.event-item:hover {
+    background-color: #f3f4f6;
+    border-color: var(--primary-color);
+    transform: translateX(4px);
+}
+
+.event-info {
+    flex: 1;
+}
+
+.event-name {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.event-time {
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.event-delete {
+    padding: 6px 12px;
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.event-delete:hover {
+    background-color: var(--danger-hover);
+}
+
+/* Nástroje */
+.tools-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 20px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+/* Prázdný stav */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-light);
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+/* Responzivní design */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    .event-form {
+        flex-direction: column;
+    }
+
+    .chart-container {
+        height: 300px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tools-buttons {
+        flex-direction: column;
+    }
+
+    .tools-buttons button {
+        width: 100%;
+    }
+}
+
+/* Scrollbar styling */
+.events-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.events-list::-webkit-scrollbar-track {
+    background: var(--bg-color);
+    border-radius: 4px;
+}
+
+.events-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.events-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-light);
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Počítadlo Událostí</h1>
+            <p class="subtitle">Soukromá aplikace pro sledování událostí</p>
+        </header>
+
+        <main>
+            <!-- Sekce pro přidání události -->
+            <section class="add-event-section">
+                <h2>Zaznamenat událost</h2>
+                <div class="event-form">
+                    <input
+                        type="text"
+                        id="eventName"
+                        placeholder="Název události (např. Cvičení, Káva, Studium...)"
+                        list="eventSuggestions"
+                    >
+                    <datalist id="eventSuggestions"></datalist>
+                    <button id="addEventBtn" class="btn-primary">➕ Přidat událost</button>
+                </div>
+                <div class="quick-buttons" id="quickButtons"></div>
+            </section>
+
+            <!-- Statistiky -->
+            <section class="stats-section">
+                <h2>Statistiky</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalEvents">0</div>
+                        <div class="stat-label">Celkem událostí</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="uniqueEvents">0</div>
+                        <div class="stat-label">Různých typů</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="todayEvents">0</div>
+                        <div class="stat-label">Dnes</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Grafy -->
+            <section class="charts-section">
+                <h2>Grafy</h2>
+                <div class="chart-controls">
+                    <label>
+                        Typ grafu:
+                        <select id="chartType">
+                            <option value="bar">Sloupcový</option>
+                            <option value="pie">Koláčový</option>
+                            <option value="line">Časová osa (denní)</option>
+                            <option value="doughnut">Kobliha</option>
+                        </select>
+                    </label>
+                    <label>
+                        Období:
+                        <select id="timePeriod">
+                            <option value="all">Vše</option>
+                            <option value="today">Dnes</option>
+                            <option value="week">Tento týden</option>
+                            <option value="month">Tento měsíc</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="chart-container">
+                    <canvas id="eventChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Seznam událostí -->
+            <section class="events-list-section">
+                <h2>Historie událostí</h2>
+                <div class="list-controls">
+                    <input
+                        type="text"
+                        id="searchEvents"
+                        placeholder="🔍 Hledat události..."
+                    >
+                    <select id="filterEvents">
+                        <option value="all">Všechny události</option>
+                    </select>
+                </div>
+                <div id="eventsList" class="events-list"></div>
+            </section>
+
+            <!-- Nástroje -->
+            <section class="tools-section">
+                <h2>Nástroje</h2>
+                <div class="tools-buttons">
+                    <button id="exportBtn" class="btn-secondary">💾 Exportovat data</button>
+                    <button id="importBtn" class="btn-secondary">📁 Importovat data</button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;">
+                    <button id="clearBtn" class="btn-danger">🗑️ Smazat vše</button>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Data jsou uložena pouze ve vašem prohlížeči</p>
+        </footer>
+    </div>
+
+    <script>
+// Globální proměnné
+let events = [];
+let chart = null;
+
+// Inicializace aplikace
+document.addEventListener('DOMContentLoaded', () => {
+    loadEvents();
+    initEventListeners();
+    updateUI();
+});
+
+// Načtení událostí z localStorage
+function loadEvents() {
+    const stored = localStorage.getItem('eventCounterData');
+    if (stored) {
+        events = JSON.parse(stored);
+    }
+}
+
+// Uložení událostí do localStorage
+function saveEvents() {
+    localStorage.setItem('eventCounterData', JSON.stringify(events));
+}
+
+// Inicializace event listenerů
+function initEventListeners() {
+    document.getElementById('addEventBtn').addEventListener('click', addEvent);
+    document.getElementById('eventName').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addEvent();
+    });
+
+    document.getElementById('chartType').addEventListener('change', updateChart);
+    document.getElementById('timePeriod').addEventListener('change', updateUI);
+
+    document.getElementById('searchEvents').addEventListener('input', filterEventsList);
+    document.getElementById('filterEvents').addEventListener('change', filterEventsList);
+
+    document.getElementById('exportBtn').addEventListener('click', exportData);
+    document.getElementById('importBtn').addEventListener('click', () => {
+        document.getElementById('importFile').click();
+    });
+    document.getElementById('importFile').addEventListener('change', importData);
+    document.getElementById('clearBtn').addEventListener('click', clearAllData);
+}
+
+// Přidání nové události
+function addEvent() {
+    const input = document.getElementById('eventName');
+    const eventName = input.value.trim();
+
+    if (!eventName) {
+        alert('Zadejte název události!');
+        return;
+    }
+
+    const event = {
+        id: Date.now(),
+        name: eventName,
+        timestamp: new Date().toISOString()
+    };
+
+    events.push(event);
+    saveEvents();
+    input.value = '';
+    updateUI();
+
+    // Animace úspěchu
+    input.style.backgroundColor = '#d1fae5';
+    setTimeout(() => {
+        input.style.backgroundColor = '';
+    }, 300);
+}
+
+// Smazání události
+function deleteEvent(id) {
+    if (confirm('Opravdu chcete smazat tuto událost?')) {
+        events = events.filter(e => e.id !== id);
+        saveEvents();
+        updateUI();
+    }
+}
+
+// Aktualizace celého UI
+function updateUI() {
+    updateStats();
+    updateChart();
+    updateEventsList();
+    updateQuickButtons();
+    updateFilterOptions();
+}
+
+// Aktualizace statistik
+function updateStats() {
+    const period = document.getElementById('timePeriod').value;
+    const filteredEvents = filterEventsByPeriod(events, period);
+
+    document.getElementById('totalEvents').textContent = events.length;
+
+    const uniqueEvents = new Set(events.map(e => e.name));
+    document.getElementById('uniqueEvents').textContent = uniqueEvents.size;
+
+    const today = new Date().toDateString();
+    const todayEvents = events.filter(e => new Date(e.timestamp).toDateString() === today);
+    document.getElementById('todayEvents').textContent = todayEvents.length;
+}
+
+// Filtrování událostí podle období
+function filterEventsByPeriod(eventsList, period) {
+    const now = new Date();
+
+    switch(period) {
+        case 'today':
+            return eventsList.filter(e => {
+                const eventDate = new Date(e.timestamp);
+                return eventDate.toDateString() === now.toDateString();
+            });
+
+        case 'week':
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            return eventsList.filter(e => new Date(e.timestamp) >= weekAgo);
+
+        case 'month':
+            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            return eventsList.filter(e => new Date(e.timestamp) >= monthAgo);
+
+        default:
+            return eventsList;
+    }
+}
+
+// Aktualizace grafu
+function updateChart() {
+    const chartType = document.getElementById('chartType').value;
+    const period = document.getElementById('timePeriod').value;
+    const filteredEvents = filterEventsByPeriod(events, period);
+
+    if (chart) {
+        chart.destroy();
+    }
+
+    const ctx = document.getElementById('eventChart').getContext('2d');
+
+    if (chartType === 'line') {
+        createTimelineChart(ctx, filteredEvents);
+    } else {
+        createCountChart(ctx, filteredEvents, chartType);
+    }
+}
+
+// Graf počtu událostí podle typu
+function createCountChart(ctx, eventsList, type) {
+    const eventCounts = {};
+
+    eventsList.forEach(event => {
+        eventCounts[event.name] = (eventCounts[event.name] || 0) + 1;
+    });
+
+    const labels = Object.keys(eventCounts);
+    const data = Object.values(eventCounts);
+
+    // Generování barev
+    const colors = generateColors(labels.length);
+
+    chart = new Chart(ctx, {
+        type: type,
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Počet výskytů',
+                data: data,
+                backgroundColor: colors.background,
+                borderColor: colors.border,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: type === 'pie' || type === 'doughnut',
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Počet výskytů jednotlivých událostí',
+                    font: {
+                        size: 16
+                    }
+                }
+            },
+            scales: type === 'bar' ? {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            } : {}
+        }
+    });
+}
+
+// Graf časové osy (denní agregace)
+function createTimelineChart(ctx, eventsList) {
+    // Seskupení událostí podle dnů
+    const dailyCounts = {};
+
+    eventsList.forEach(event => {
+        const date = new Date(event.timestamp).toLocaleDateString('cs-CZ');
+        if (!dailyCounts[date]) {
+            dailyCounts[date] = {};
+        }
+        dailyCounts[date][event.name] = (dailyCounts[date][event.name] || 0) + 1;
+    });
+
+    // Získání všech unikátních názvů událostí
+    const eventNames = [...new Set(eventsList.map(e => e.name))];
+    const dates = Object.keys(dailyCounts).sort((a, b) => {
+        return new Date(a.split('.').reverse().join('-')) - new Date(b.split('.').reverse().join('-'));
+    });
+
+    // Vytvoření datasetů pro každý typ události
+    const colors = generateColors(eventNames.length);
+    const datasets = eventNames.map((name, index) => ({
+        label: name,
+        data: dates.map(date => dailyCounts[date][name] || 0),
+        borderColor: colors.border[index],
+        backgroundColor: colors.background[index],
+        tension: 0.3,
+        fill: false
+    }));
+
+    chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Časová osa událostí (po dnech)',
+                    font: {
+                        size: 16
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Generování barev pro graf
+function generateColors(count) {
+    const baseColors = [
+        { bg: 'rgba(79, 70, 229, 0.6)', border: 'rgba(79, 70, 229, 1)' },
+        { bg: 'rgba(16, 185, 129, 0.6)', border: 'rgba(16, 185, 129, 1)' },
+        { bg: 'rgba(239, 68, 68, 0.6)', border: 'rgba(239, 68, 68, 1)' },
+        { bg: 'rgba(245, 158, 11, 0.6)', border: 'rgba(245, 158, 11, 1)' },
+        { bg: 'rgba(139, 92, 246, 0.6)', border: 'rgba(139, 92, 246, 1)' },
+        { bg: 'rgba(236, 72, 153, 0.6)', border: 'rgba(236, 72, 153, 1)' },
+        { bg: 'rgba(6, 182, 212, 0.6)', border: 'rgba(6, 182, 212, 1)' },
+        { bg: 'rgba(132, 204, 22, 0.6)', border: 'rgba(132, 204, 22, 1)' }
+    ];
+
+    const background = [];
+    const border = [];
+
+    for (let i = 0; i < count; i++) {
+        const color = baseColors[i % baseColors.length];
+        background.push(color.bg);
+        border.push(color.border);
+    }
+
+    return { background, border };
+}
+
+// Aktualizace seznamu událostí
+function updateEventsList() {
+    const container = document.getElementById('eventsList');
+    const searchTerm = document.getElementById('searchEvents').value.toLowerCase();
+    const filterValue = document.getElementById('filterEvents').value;
+
+    let filteredEvents = [...events].reverse(); // Nejnovější nahoře
+
+    // Filtrování podle vyhledávání
+    if (searchTerm) {
+        filteredEvents = filteredEvents.filter(e =>
+            e.name.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    // Filtrování podle typu události
+    if (filterValue !== 'all') {
+        filteredEvents = filteredEvents.filter(e => e.name === filterValue);
+    }
+
+    if (filteredEvents.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <p>Žádné události k zobrazení</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = filteredEvents.map(event => {
+        const date = new Date(event.timestamp);
+        const timeStr = date.toLocaleString('cs-CZ');
+
+        return `
+            <div class="event-item">
+                <div class="event-info">
+                    <div class="event-name">${escapeHtml(event.name)}</div>
+                    <div class="event-time">${timeStr}</div>
+                </div>
+                <button class="event-delete" onclick="deleteEvent(${event.id})">
+                    🗑️ Smazat
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+// Aktualizace rychlých tlačítek
+function updateQuickButtons() {
+    const container = document.getElementById('quickButtons');
+    const eventNames = [...new Set(events.map(e => e.name))];
+
+    if (eventNames.length === 0) {
+        container.innerHTML = '<p style="color: #9ca3af; font-size: 0.9rem;">Rychlá tlačítka se zobrazí po přidání první události</p>';
+        return;
+    }
+
+    container.innerHTML = eventNames.map(name => `
+        <button class="quick-btn" onclick="quickAddEvent('${escapeHtml(name)}')">
+            ${escapeHtml(name)}
+        </button>
+    `).join('');
+}
+
+// Rychlé přidání události
+function quickAddEvent(name) {
+    const event = {
+        id: Date.now(),
+        name: name,
+        timestamp: new Date().toISOString()
+    };
+
+    events.push(event);
+    saveEvents();
+    updateUI();
+}
+
+// Aktualizace možností filtru
+function updateFilterOptions() {
+    const select = document.getElementById('filterEvents');
+    const eventNames = [...new Set(events.map(e => e.name))];
+
+    select.innerHTML = '<option value="all">Všechny události</option>' +
+        eventNames.map(name => `
+            <option value="${escapeHtml(name)}">${escapeHtml(name)}</option>
+        `).join('');
+
+    // Aktualizace našeptávače
+    const datalist = document.getElementById('eventSuggestions');
+    datalist.innerHTML = eventNames.map(name => `
+        <option value="${escapeHtml(name)}">
+    `).join('');
+}
+
+// Filtrování seznamu událostí
+function filterEventsList() {
+    updateEventsList();
+}
+
+// Export dat do JSON
+function exportData() {
+    if (events.length === 0) {
+        alert('Žádná data k exportu!');
+        return;
+    }
+
+    const dataStr = JSON.stringify(events, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `pocitadlo-udalosti-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+}
+
+// Import dat z JSON
+function importData(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        try {
+            const importedEvents = JSON.parse(event.target.result);
+
+            if (!Array.isArray(importedEvents)) {
+                throw new Error('Neplatný formát dat');
+            }
+
+            if (confirm(`Chcete importovat ${importedEvents.length} událostí? Toto přidá nové události k existujícím.`)) {
+                events = [...events, ...importedEvents];
+                saveEvents();
+                updateUI();
+                alert('Data byla úspěšně importována!');
+            }
+        } catch (error) {
+            alert('Chyba při importu dat: ' + error.message);
+        }
+    };
+
+    reader.readAsText(file);
+    e.target.value = ''; // Reset input
+}
+
+// Smazání všech dat
+function clearAllData() {
+    if (confirm('Opravdu chcete smazat VŠECHNA data? Tuto akci nelze vrátit zpět!')) {
+        if (confirm('Jste si naprosto jistí? Všechna data budou navždy ztracena!')) {
+            events = [];
+            saveEvents();
+            updateUI();
+            alert('Všechna data byla smazána.');
+        }
+    }
+}
+
+// Escapování HTML pro prevenci XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+    </script>
+</body>
+</html>

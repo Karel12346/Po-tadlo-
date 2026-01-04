@@ -18,7 +18,27 @@ Soukromá webová aplikace pro sledování a analýzu osobních událostí s gra
 
 ## 🚀 Jak aplikaci spustit
 
-### Metoda 1: Přímé otevření
+### 📱 Pro mobilní telefon (DOPORUČENO PRO MOBIL)
+**Nejjednodušší způsob - jeden soubor:**
+
+1. **Stáhněte soubor** `pocitadlo-mobil.html` na telefon
+   - Z GitHubu: Otevřete soubor a klikněte na "Download" nebo "Raw" a uložte
+   - Nebo použijte odkaz pro stažení
+2. **Otevřete soubor** v mobilním prohlížeči
+   - Najděte soubor ve složce "Stažené soubory" nebo "Downloads"
+   - Klikněte na něj - otevře se v prohlížeči (Chrome, Safari, Firefox)
+3. **Přidejte si ho na plochu** (volitelné)
+   - Chrome (Android): Menu (⋮) → "Přidat na plochu"
+   - Safari (iOS): Sdílet → "Na plochu"
+
+**DŮLEŽITÉ:**
+- Funguje offline po prvním načtení
+- Data jsou uložena pouze ve vašem telefonu
+- Potřebujete internetové připojení pouze při prvním otevření (pro načtení grafů)
+
+### 💻 Pro počítač
+
+#### Metoda 1: Přímé otevření
 1. Stáhněte všechny soubory do jedné složky:
    - `index.html`
    - `styles.css`
@@ -26,7 +46,7 @@ Soukromá webová aplikace pro sledování a analýzu osobních událostí s gra
 2. Dvakrát klikněte na soubor `index.html`
 3. Aplikace se otevře ve vašem výchozím prohlížeči
 
-### Metoda 2: Lokální server (doporučeno)
+#### Metoda 2: Lokální server (doporučeno)
 Pokud máte nainstalovaný Python:
 
 ```bash
@@ -39,7 +59,7 @@ python -m SimpleHTTPServer 8000
 
 Poté otevřete prohlížeč na adrese: `http://localhost:8000`
 
-### Metoda 3: VS Code Live Server
+#### Metoda 3: VS Code Live Server
 1. Otevřete složku ve Visual Studio Code
 2. Nainstalujte rozšíření "Live Server"
 3. Klikněte pravým tlačítkem na `index.html` → "Open with Live Server"
