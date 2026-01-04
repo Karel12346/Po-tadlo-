@@ -24,12 +24,24 @@ Soukromá webová aplikace pro sledování a analýzu osobních událostí s gra
 1. **Stáhněte soubor** `pocitadlo-mobil.html` na telefon
    - Z GitHubu: Otevřete soubor a klikněte na "Download" nebo "Raw" a uložte
    - Nebo použijte odkaz pro stažení
-2. **Otevřete soubor** v mobilním prohlížeči
+
+2. **Otevřete soubor v mobilním prohlížeči:**
+
+   **📱 iPhone/iPad (iOS):**
+   - Otevřete aplikaci **"Soubory"** (Files)
+   - Najděte soubor `pocitadlo-mobil.html` ve složce "Stažené"
+   - **Klikněte a podržte** na souboru (long press)
+   - Vyberte **"Sdílet"** → **"Safari"**
+   - NEBO: Klikněte na soubor → Klikněte "Sdílet" (ikona) → "Safari"
+
+   **🤖 Android:**
    - Najděte soubor ve složce "Stažené soubory" nebo "Downloads"
-   - Klikněte na něj - otevře se v prohlížeči (Chrome, Safari, Firefox)
-3. **Přidejte si ho na plochu** (volitelné)
-   - Chrome (Android): Menu (⋮) → "Přidat na plochu"
-   - Safari (iOS): Sdílet → "Na plochu"
+   - Klikněte na něj - otevře se v prohlížeči (Chrome, Firefox)
+
+3. **Přidejte si ho na plochu** (volitelné, ale doporučeno!)
+   - **iOS Safari**: Tlačítko "Sdílet" → "Přidat na plochu"
+   - **Android Chrome**: Menu (⋮) → "Přidat na plochu"
+   - Pak budete mít ikonu jako skutečnou aplikaci! 📲
 
 **DŮLEŽITÉ:**
 - Funguje offline po prvním načtení
