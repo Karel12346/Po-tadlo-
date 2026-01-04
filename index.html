@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Počítadlo Událostí</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Počítadlo Událostí</h1>
+            <p class="subtitle">Soukromá aplikace pro sledování událostí</p>
+        </header>
+
+        <main>
+            <!-- Sekce pro přidání události -->
+            <section class="add-event-section">
+                <h2>Zaznamenat událost</h2>
+                <div class="event-form">
+                    <input
+                        type="text"
+                        id="eventName"
+                        placeholder="Název události (např. Cvičení, Káva, Studium...)"
+                        list="eventSuggestions"
+                    >
+                    <datalist id="eventSuggestions"></datalist>
+                    <button id="addEventBtn" class="btn-primary">➕ Přidat událost</button>
+                </div>
+                <div class="quick-buttons" id="quickButtons"></div>
+            </section>
+
+            <!-- Statistiky -->
+            <section class="stats-section">
+                <h2>Statistiky</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalEvents">0</div>
+                        <div class="stat-label">Celkem událostí</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="uniqueEvents">0</div>
+                        <div class="stat-label">Různých typů</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="todayEvents">0</div>
+                        <div class="stat-label">Dnes</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Grafy -->
+            <section class="charts-section">
+                <h2>Grafy</h2>
+                <div class="chart-controls">
+                    <label>
+                        Typ grafu:
+                        <select id="chartType">
+                            <option value="bar">Sloupcový</option>
+                            <option value="pie">Koláčový</option>
+                            <option value="line">Časová osa (denní)</option>
+                            <option value="doughnut">Kobliha</option>
+                        </select>
+                    </label>
+                    <label>
+                        Období:
+                        <select id="timePeriod">
+                            <option value="all">Vše</option>
+                            <option value="today">Dnes</option>
+                            <option value="week">Tento týden</option>
+                            <option value="month">Tento měsíc</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="chart-container">
+                    <canvas id="eventChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Seznam událostí -->
+            <section class="events-list-section">
+                <h2>Historie událostí</h2>
+                <div class="list-controls">
+                    <input
+                        type="text"
+                        id="searchEvents"
+                        placeholder="🔍 Hledat události..."
+                    >
+                    <select id="filterEvents">
+                        <option value="all">Všechny události</option>
+                    </select>
+                </div>
+                <div id="eventsList" class="events-list"></div>
+            </section>
+
+            <!-- Nástroje -->
+            <section class="tools-section">
+                <h2>Nástroje</h2>
+                <div class="tools-buttons">
+                    <button id="exportBtn" class="btn-secondary">💾 Exportovat data</button>
+                    <button id="importBtn" class="btn-secondary">📁 Importovat data</button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;">
+                    <button id="clearBtn" class="btn-danger">🗑️ Smazat vše</button>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Data jsou uložena pouze ve vašem prohlížeči</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
