@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📊 Počítadlo Událostí</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" onerror="window.chartJsLoadError=true"></script>
     <style>
 /* Reset a základní styly */
 * {
@@ -116,7 +116,7 @@ button {
     color: white;
 }
 
-.btn-primary:hover {
+.btn-primary:hover, .btn-primary:active {
     background-color: var(--primary-hover);
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
@@ -127,7 +127,7 @@ button {
     color: white;
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover, .btn-secondary:active {
     background-color: #059669;
     transform: translateY(-2px);
 }
@@ -137,7 +137,7 @@ button {
     color: white;
 }
 
-.btn-danger:hover {
+.btn-danger:hover, .btn-danger:active {
     background-color: var(--danger-hover);
 }
 
@@ -157,7 +157,7 @@ button {
     font-size: 0.9rem;
 }
 
-.quick-btn:hover {
+.quick-btn:hover, .quick-btn:active {
     background-color: #e5e7eb;
     border-color: var(--primary-color);
 }
@@ -226,6 +226,12 @@ button {
     margin-top: 20px;
 }
 
+.chart-error {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-light);
+}
+
 /* Seznam událostí */
 .list-controls {
     display: flex;
@@ -268,7 +274,7 @@ button {
     transition: all 0.2s;
 }
 
-.event-item:hover {
+.event-item:hover, .event-item:active {
     background-color: #f3f4f6;
     border-color: var(--primary-color);
     transform: translateX(4px);
@@ -299,7 +305,7 @@ button {
     font-size: 0.85rem;
 }
 
-.event-delete:hover {
+.event-delete:hover, .event-delete:active {
     background-color: var(--danger-hover);
 }
 
@@ -486,36 +492,68 @@ footer {
 // Globální proměnné
 let events = [];
 let chart = null;
+let chartJsAvailable = false;
 
 // Inicializace aplikace
 document.addEventListener('DOMContentLoaded', () => {
+    // Zkontrolovat dostupnost Chart.js
+    checkChartJs();
+
     loadEvents();
     initEventListeners();
     updateUI();
 });
 
+// Kontrola dostupnosti Chart.js
+function checkChartJs() {
+    chartJsAvailable = typeof Chart !== 'undefined' && !window.chartJsLoadError;
+    if (!chartJsAvailable) {
+        console.warn('Chart.js není dostupné - grafy nebudou fungovat. Potřebujete internetové připojení.');
+        const chartContainer = document.querySelector('.chart-container');
+        if (chartContainer) {
+            chartContainer.innerHTML = '<div class="chart-error">⚠️ Grafy vyžadují internetové připojení při prvním načtení.<br>Obnovte stránku s připojením k internetu.</div>';
+        }
+    }
+}
+
 // Načtení událostí z localStorage
 function loadEvents() {
-    const stored = localStorage.getItem('eventCounterData');
-    if (stored) {
-        events = JSON.parse(stored);
+    try {
+        const stored = localStorage.getItem('eventCounterData');
+        if (stored) {
+            events = JSON.parse(stored);
+        }
+    } catch (error) {
+        console.error('Chyba při načítání dat:', error);
+        alert('Chyba při načítání uložených dat. Začínáme s prázdnými daty.');
+        events = [];
     }
 }
 
 // Uložení událostí do localStorage
 function saveEvents() {
-    localStorage.setItem('eventCounterData', JSON.stringify(events));
+    try {
+        localStorage.setItem('eventCounterData', JSON.stringify(events));
+    } catch (error) {
+        console.error('Chyba při ukládání dat:', error);
+        alert('Chyba při ukládání dat!');
+    }
 }
 
 // Inicializace event listenerů
 function initEventListeners() {
     document.getElementById('addEventBtn').addEventListener('click', addEvent);
     document.getElementById('eventName').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') addEvent();
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addEvent();
+        }
     });
 
-    document.getElementById('chartType').addEventListener('change', updateChart);
-    document.getElementById('timePeriod').addEventListener('change', updateUI);
+    if (chartJsAvailable) {
+        document.getElementById('chartType').addEventListener('change', updateChart);
+        document.getElementById('timePeriod').addEventListener('change', updateUI);
+    }
 
     document.getElementById('searchEvents').addEventListener('input', filterEventsList);
     document.getElementById('filterEvents').addEventListener('change', filterEventsList);
@@ -568,7 +606,9 @@ function deleteEvent(id) {
 // Aktualizace celého UI
 function updateUI() {
     updateStats();
-    updateChart();
+    if (chartJsAvailable) {
+        updateChart();
+    }
     updateEventsList();
     updateQuickButtons();
     updateFilterOptions();
@@ -615,20 +655,26 @@ function filterEventsByPeriod(eventsList, period) {
 
 // Aktualizace grafu
 function updateChart() {
-    const chartType = document.getElementById('chartType').value;
-    const period = document.getElementById('timePeriod').value;
-    const filteredEvents = filterEventsByPeriod(events, period);
+    if (!chartJsAvailable) return;
 
-    if (chart) {
-        chart.destroy();
-    }
+    try {
+        const chartType = document.getElementById('chartType').value;
+        const period = document.getElementById('timePeriod').value;
+        const filteredEvents = filterEventsByPeriod(events, period);
 
-    const ctx = document.getElementById('eventChart').getContext('2d');
+        if (chart) {
+            chart.destroy();
+        }
 
-    if (chartType === 'line') {
-        createTimelineChart(ctx, filteredEvents);
-    } else {
-        createCountChart(ctx, filteredEvents, chartType);
+        const ctx = document.getElementById('eventChart').getContext('2d');
+
+        if (chartType === 'line') {
+            createTimelineChart(ctx, filteredEvents);
+        } else {
+            createCountChart(ctx, filteredEvents, chartType);
+        }
+    } catch (error) {
+        console.error('Chyba při vytváření grafu:', error);
     }
 }
 
